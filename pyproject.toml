@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dogbench"
+version = "0.1.0"
+description = "Evaluate whether agents can maintain expert-quality user-facing documentation."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE", "DATASET_LICENSE.md", "DATA_LICENSE.md"]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+cloud = ["PyYAML>=6.0.3"]
+
+[project.scripts]
+dogbench = "dogbench.cli:main"
+
+[project.urls]
+Homepage = "https://dogbench.ai"
+
+[tool.setuptools.packages.find]
+include = ["dogbench*"]
+
+[tool.setuptools.package-data]
+dogbench = ["schemas/*.json", "assets/*", "assets/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,25 @@
+ARG BASE_AGENT_IMAGE
+FROM oven/bun:1.3.14 AS build
+
+ARG OPENCODE_VERSION=1.17.11
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git patch ca-certificates python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+RUN git clone --depth 1 --branch "v${OPENCODE_VERSION}" https://github.com/anomalyco/opencode.git .
+COPY opencode-qwen-empty-unknown-sibling.patch /tmp/qwen.patch
+RUN patch -p1 < /tmp/qwen.patch \
+    && bun install \
+    && cd packages/opencode \
+    && bun run script/build.ts --single --skip-embed-web-ui
+
+FROM ${BASE_AGENT_IMAGE}
+
+USER root
+COPY --from=build /src/packages/opencode/dist/opencode-linux-x64/bin/opencode /usr/local/bin/opencode
+RUN chmod 0755 /usr/local/bin/opencode
+ENV OPENCODE_QWEN_DROP_EMPTY_UNKNOWN_SIBLINGS=1
+USER 1000:1000
+WORKDIR /workspace

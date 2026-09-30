@@ -1,0 +1,185 @@
+diff --git a/packages/opencode/src/session/llm.ts b/packages/opencode/src/session/llm.ts
+index adacfc4..12b4ae4 100644
+--- a/packages/opencode/src/session/llm.ts
++++ b/packages/opencode/src/session/llm.ts
+@@ -7,6 +7,7 @@ import { serviceUse } from "@opencode-ai/core/effect/service-use"
+ import { Context, Effect, Layer } from "effect"
+ import * as Stream from "effect/Stream"
+ import { streamText, wrapLanguageModel, type ModelMessage, type Tool } from "ai"
++import type { LanguageModelV3StreamPart, LanguageModelV3StreamResult } from "@ai-sdk/provider"
+ import type { LLMEvent } from "@opencode-ai/llm"
+ import { LLMClient, RequestExecutor, WebSocketExecutor } from "@opencode-ai/llm/route"
+ import type { LLMClientService } from "@opencode-ai/llm/route"
+@@ -32,6 +33,87 @@ import { LLMRequestPrep } from "./llm/request"
+ 
+ export const OUTPUT_TOKEN_MAX = ProviderTransform.OUTPUT_TOKEN_MAX
+ 
++const isEmptyUnknownToolInput = (input: string) => {
++  const value = input.trim()
++  if (value === "" || value === "{}") return true
++  try {
++    const parsed = JSON.parse(value)
++    return !!parsed && typeof parsed === "object" && !Array.isArray(parsed) && Object.keys(parsed).length === 0
++  } catch {
++    return false
++  }
++}
++
++/**
++ * Qwen/OpenRouter occasionally streams an empty, unnamed tool call alongside
++ * valid calls. Buffer only unnamed calls until the provider step finishes,
++ * then discard an empty one iff the same response contained a valid sibling.
++ * Ambiguous/non-empty calls and lone unknown calls pass through unchanged.
++ */
++export const dropEmptyUnknownToolCallsWithValidSibling = (result: LanguageModelV3StreamResult) => {
++  const source = result.stream
++  const stream = new ReadableStream<LanguageModelV3StreamPart>({
++    async start(controller) {
++      const reader = source.getReader()
++      const pending = new Map<string, { parts: LanguageModelV3StreamPart[]; input: string }>()
++      let validToolSeen = false
++
++      const flush = () => {
++        for (const entry of pending.values()) {
++          if (!(validToolSeen && isEmptyUnknownToolInput(entry.input))) {
++            for (const part of entry.parts) controller.enqueue(part)
++          }
++        }
++        pending.clear()
++        validToolSeen = false
++      }
++
++      try {
++        while (true) {
++          const next = await reader.read()
++          if (next.done) break
++          const part = next.value
++
++          if (part.type === "tool-input-start") {
++            if (part.toolName.trim() === "" || part.toolName === "unknown") {
++              pending.set(part.id, { parts: [part], input: "" })
++              continue
++            }
++            validToolSeen = true
++          } else if (part.type === "tool-input-delta" && pending.has(part.id)) {
++            const entry = pending.get(part.id)!
++            entry.parts.push(part)
++            entry.input += part.delta
++            continue
++          } else if (part.type === "tool-input-end" && pending.has(part.id)) {
++            pending.get(part.id)!.parts.push(part)
++            continue
++          } else if (part.type === "tool-call") {
++            if (part.toolName.trim() === "" || part.toolName === "unknown") {
++              const entry = pending.get(part.toolCallId) ?? { parts: [], input: "" }
++              entry.parts.push(part)
++              entry.input = part.input || entry.input
++              pending.set(part.toolCallId, entry)
++              continue
++            }
++            validToolSeen = true
++          }
++
++          if (part.type === "finish") flush()
++          controller.enqueue(part)
++        }
++        flush()
++        controller.close()
++      } catch (error) {
++        controller.error(error)
++      } finally {
++        reader.releaseLock()
++      }
++    },
++  })
++  return { ...result, stream }
++}
++
+ export type StreamInput = {
+   user: SessionV1.User
+   sessionID: string
+@@ -338,6 +420,11 @@ const live: Layer.Layer<
+                   }
+                   return args.params
+                 },
++                async wrapStream({ doStream }) {
++                  const result = await doStream()
++                  if (process.env.OPENCODE_QWEN_DROP_EMPTY_UNKNOWN_SIBLINGS !== "1") return result
++                  return dropEmptyUnknownToolCallsWithValidSibling(result)
++                },
+               },
+             ],
+           }),
+
+diff --git a/packages/opencode/src/session/processor.ts b/packages/opencode/src/session/processor.ts
+index 2554315..22ea102 100644
+--- a/packages/opencode/src/session/processor.ts
++++ b/packages/opencode/src/session/processor.ts
+@@ -82,6 +82,8 @@ interface ProcessorContext extends Input {
+   currentTextID: string | undefined
+   reasoningMap: Record<string, SessionV1.ReasoningPart>
+   v2AssistantMessageID: SessionMessage.ID | undefined
++  qwenSiblingFilter: boolean
++  settledToolCallIDs: Set<string>
+ }
+ 
+ type StreamEvent = LLMEvent
+@@ -123,6 +125,8 @@ export const layer = Layer.effect(
+         currentTextID: undefined,
+         reasoningMap: {},
+         v2AssistantMessageID: undefined,
++        qwenSiblingFilter: globalThis.process.env.OPENCODE_QWEN_DROP_EMPTY_UNKNOWN_SIBLINGS === "1",
++        settledToolCallIDs: new Set<string>(),
+       }
+       const mirrorAssistant = flags.experimentalEventSystem && !input.assistantMessage.summary
+       let aborted = false
+@@ -138,6 +142,7 @@ export const layer = Layer.effect(
+       const settleToolCall = Effect.fn("SessionProcessor.settleToolCall")(function* (toolCallID: string) {
+         const done = ctx.toolcalls[toolCallID]?.done
+         delete ctx.toolcalls[toolCallID]
++        if (ctx.qwenSiblingFilter) ctx.settledToolCallIDs.add(toolCallID)
+         if (done) yield* Deferred.succeed(done, undefined).pipe(Effect.ignore)
+       })
+ 
+@@ -425,6 +430,12 @@ export const layer = Layer.effect(
+             return
+ 
+           case "tool-input-start":
++            if (
++              ctx.qwenSiblingFilter &&
++              ctx.settledToolCallIDs.has(value.id) &&
++              (value.name.trim() === "" || value.name === "unknown")
++            )
++              return
+             if (ctx.assistantMessage.summary) {
+               throw new Error(`Tool call not allowed while generating summary: ${value.name}`)
+             }
+@@ -433,6 +444,7 @@ export const layer = Layer.effect(
+ 
+           case "tool-input-delta":
+             {
++              if (ctx.qwenSiblingFilter && ctx.settledToolCallIDs.has(value.id)) return
+               const toolCall = yield* ensureToolCall(value)
+               const assistantMessageID = mirrorAssistant ? yield* requireV2AssistantMessage(toolCall.call) : undefined
+               if (assistantMessageID) {
+@@ -449,6 +461,7 @@ export const layer = Layer.effect(
+             return
+ 
+           case "tool-input-end": {
++            if (ctx.qwenSiblingFilter && ctx.settledToolCallIDs.has(value.id)) return
+             const toolCall = yield* ensureToolCall(value)
+             // TODO(v2): Temporary dual-write while migrating session messages to v2 events.
+             if (mirrorAssistant) {
+@@ -466,6 +479,12 @@ export const layer = Layer.effect(
+           }
+ 
+           case "tool-call": {
++            if (
++              ctx.qwenSiblingFilter &&
++              ctx.settledToolCallIDs.has(value.id) &&
++              (value.name.trim() === "" || value.name === "unknown")
++            )
++              return
+             if (ctx.assistantMessage.summary) {
+               throw new Error(`Tool call not allowed while generating summary: ${value.name}`)
+             }

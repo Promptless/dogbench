@@ -1,0 +1,14 @@
+include README.md LICENSE NOTICE DATASET_CARD.md DATASET_LICENSE.md DATA_LICENSE.md CITATION.cff
+recursive-include docs *.md *.json
+recursive-include dogbench *.py *.json Containerfile* *.conf *.sh
+recursive-include tests *.py
+prune data
+prune historical-trajectories
+global-exclude __pycache__ *.py[cod] .DS_Store
+
+recursive-include tools *.py
+prune .playwright-mcp
+prune outputs
+prune logs
+prune build
+prune dist

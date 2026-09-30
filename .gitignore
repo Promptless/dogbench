@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+build/
+dist/
+*.egg-info/
+.DS_Store
+.env
+workspaces/
+runs/
+scores/
+*.pem
+
+# Local inspection and release build outputs
+.playwright-mcp/
+outputs/
+logs/
+.cache/
+.mypy_cache/
+.ruff_cache/

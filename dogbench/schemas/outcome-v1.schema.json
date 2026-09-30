@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dogbench.ai/schemas/outcome-v1.schema.json",
+  "title": "DogBench development outcome",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "instance_id",
+    "expected_outcome",
+    "rubric_markdown",
+    "rubric_sha256",
+    "rubric_path",
+    "rubric_status",
+    "notes"
+  ],
+  "properties": {
+    "instance_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "expected_outcome": {
+      "enum": [
+        "patch",
+        "abstain"
+      ]
+    },
+    "rubric_markdown": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rubric_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "rubric_path": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^rubrics/[A-Za-z0-9._-]+\\.md$"
+    },
+    "rubric_status": {
+      "enum": [
+        "canonical",
+        "partial_canonical",
+        "not_applicable"
+      ]
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "expected_outcome": {
+            "const": "abstain"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "rubric_markdown": {
+            "type": "null"
+          },
+          "rubric_sha256": {
+            "type": "null"
+          },
+          "rubric_path": {
+            "type": "null"
+          },
+          "rubric_status": {
+            "const": "not_applicable"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "rubric_markdown": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rubric_sha256": {
+            "type": "string"
+          },
+          "rubric_path": {
+            "type": "string"
+          },
+          "rubric_status": {
+            "enum": [
+              "canonical",
+              "partial_canonical"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

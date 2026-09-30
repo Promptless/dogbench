@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dogbench.ai/schemas/prediction-v1.schema.json",
+  "title": "DogBench prediction",
+  "type": "object",
+  "required": ["instance_id"],
+  "properties": {
+    "instance_id": {"type": "string", "pattern": "\\S"},
+    "status": {
+      "type": "string",
+      "enum": ["completed", "error", "timeout", "invalid"],
+      "default": "completed"
+    },
+    "decision": {"type": "string", "enum": ["patch", "abstain"]},
+    "patch": {"type": "string"},
+    "error": {"type": "string", "pattern": "\\S"},
+    "agent": {"type": "object"},
+    "usage": {"type": "object"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"status": {"const": "completed"}}
+      },
+      "then": {"required": ["decision"]}
+    },
+    {
+      "if": {
+        "properties": {"decision": {"const": "patch"}},
+        "required": ["decision"]
+      },
+      "then": {
+        "required": ["patch"],
+        "properties": {"patch": {"pattern": "\\S"}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"decision": {"const": "abstain"}},
+        "required": ["decision"]
+      },
+      "then": {
+        "properties": {"patch": {"const": ""}}
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"enum": ["error", "timeout", "invalid"]}
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["error"],
+        "not": {
+          "anyOf": [
+            {"required": ["decision"]},
+            {"required": ["patch"]}
+          ]
+        }
+      }
+    }
+  ]
+}

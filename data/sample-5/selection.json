@@ -1,0 +1,20 @@
+{
+  "item_ids": [
+    "bentoml-bentoml-pr5518",
+    "celery-celery-pr10174",
+    "celery-celery-pr10206",
+    "celery-celery-pr9879",
+    "tiangolo-fastapi-pr14681"
+  ],
+  "item_records": "Exact source JSONL lines; canonical rubric text preserved unchanged.",
+  "seed": 2026092804,
+  "selection": "Five hand-selected patch workflow examples across three repositories, including a documentation-request task. No abstention example is included. Selected using source, label, input, and rubric review, without consulting agent scores. Not a representative evaluation.",
+  "source_item_count": 175,
+  "source_items_sha256": "fd3c4707b67418da605edcadc47ff11da6c4412e0eafbea76ae855f4830412ef",
+  "source_manifest_sha256": "990046894d63e4f04410b9838f3b6cd95a59080f28d38bff248d859366814edc",
+  "source_outcomes_sha256": "48481665c0887a64a136a34dd7dc6d07c96dac3ed33716b674d538277b3efcce",
+  "source_release": "dogbench-development-v18",
+  "split": 4,
+  "sample_revision": "r2",
+  "supersedes": "development-v18-sample-5"
+}

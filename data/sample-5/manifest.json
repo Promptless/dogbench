@@ -1,0 +1,26 @@
+{
+  "abstention": 0,
+  "benchmark_version": "development-v18-sample-5-r2",
+  "dataset_id": "dogbench-development-sample",
+  "files": {
+    "DATASET_LICENSE.md": "5cba900d066a5db9992b1a2ac1ea9ee89750ac167c7fe627a0b3e06a0afe1d11",
+    "README.md": "8acbd9743c16c5160347653423fd7ed02e7a14d6ca65155c37acd6b17dc4501a",
+    "evaluations.jsonl": "7bf56ceaaadd47c316a19898dc7067c43d998b53e4606ea1cac66873d7af9dbe",
+    "items.jsonl": "2317d5bbd59975a110f091c872473a7fe83ae03b7b4ae8e075d389a6651bcbcb",
+    "labels.jsonl": "8fb10d7f17c3ae3ad29773076b01aac6ad2958122eba24d0edd06a582894e56a",
+    "outcomes.jsonl": "7d9a8d64336254a3af2e5407bea00166e4986e2ea612a0f4848e38a57bae649f",
+    "provenance.jsonl": "4ecb3bffa7160bb94c372cd749475f43a397a46ef27f16ea7c4e616b623a1650",
+    "rubrics.jsonl": "f66a58bd912cef9e899ae3b4e7d45c2eeba98cd0cd896910d18e11a17dc6afad",
+    "selection.json": "96e5ebd36ab36716f5889c4206dc69bfc448a2439d614aec6cc30eb55526f265",
+    "source_licenses.json": "d409f5d7e46dac549bd0f3baa702da5d68a160bdeb38b49121947269525ff958"
+  },
+  "item_count": 5,
+  "patch_needed": 5,
+  "reference_count": 0,
+  "reference_patches": {},
+  "rubric_count": 5,
+  "rubric_criterion_count": 72,
+  "schema_version": "dogbench-development-release-v1",
+  "split": "development-sample",
+  "status": "complete"
+}

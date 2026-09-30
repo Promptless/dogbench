@@ -1,0 +1,25 @@
+FROM amazonlinux:2023
+
+ARG CLAUDE_CODE_VERSION=2.1.195
+ARG CODEX_VERSION=0.144.6
+ARG OPENCODE_VERSION=1.17.11
+ARG RIPGREP_VERSION=1.18.0
+
+RUN dnf install -y \
+        curl-minimal diffutils findutils git grep gzip nodejs npm patch procps-ng shadow-utils tar \
+    && dnf clean all \
+    && npm install -g \
+        "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
+        "@openai/codex@${CODEX_VERSION}" \
+        "opencode-ai@${OPENCODE_VERSION}" \
+        "@vscode/ripgrep@${RIPGREP_VERSION}" \
+    && ln -s \
+        "$(npm root -g)/@vscode/ripgrep/node_modules/@vscode/ripgrep-linux-x64/bin/rg" \
+        /usr/local/bin/rg \
+    && npm cache clean --force \
+    && useradd --create-home --uid 1000 --shell /bin/bash agent \
+    && mkdir -p /workspace /task \
+    && chown agent:agent /workspace /task
+
+USER 1000:1000
+WORKDIR /workspace

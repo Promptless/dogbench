@@ -1,0 +1,8 @@
+DogBench
+Copyright 2026 Promptless, Inc.
+
+The software is distributed under the Apache License 2.0 in LICENSE.
+Benchmark data has separate terms in DATASET_LICENSE.md and DATA_LICENSE.md.
+Upstream source material retains the licenses and attribution of its contributors.
+The five bundled development samples include pinned upstream license references
+in data/sample-5/source_licenses.json.

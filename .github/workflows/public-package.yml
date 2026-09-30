@@ -1,0 +1,37 @@
+name: Public package
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install DogBench
+        run: python -m pip install -e ".[test,cloud]" build pypdf==6.3.0
+      - name: Check the public command
+        run: dogbench --help
+      - name: Run deterministic tests
+        run: python -m pytest
+      - name: Verify historical artifacts
+        run: python historical-trajectories/verify.py
+      - name: Build distributions
+        run: python -m build
+      - name: Check public repository export
+        run: python tools/export_public.py . "${{ runner.temp }}/dogbench-public-export"
+      - name: Scan built packages
+        run: python tools/release_guard.py dist/*.whl dist/*.tar.gz

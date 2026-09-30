@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use DogBench, please cite the benchmark paper."
+title: "DogBench: Can Agents Meet Expert Standards for User-Facing Documentation?"
+type: software
+authors:
+  - family-names: Liu
+    given-names: Frances
+  - family-names: Silva
+    given-names: Manny
+  - family-names: Calvert
+    given-names: Paige
+  - family-names: Adiati
+    given-names: Ayu
+  - family-names: Sanders
+    given-names: Sarah
+version: 0.1.0
+repository-code: "https://github.com/Promptless/dogbench"
+url: "https://dogbench.ai"
+preferred-citation:
+  type: article
+  title: "DogBench: Can Agents Meet Expert Standards for User-Facing Documentation?"
+  year: 2026
+  authors:
+    - family-names: Liu
+      given-names: Frances
+    - family-names: Silva
+      given-names: Manny
+    - family-names: Calvert
+      given-names: Paige
+    - family-names: Adiati
+      given-names: Ayu
+    - family-names: Sanders
+      given-names: Sarah

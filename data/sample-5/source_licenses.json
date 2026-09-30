@@ -1,0 +1,67 @@
+{
+  "bentoml/bentoml": {
+    "status": "found",
+    "spdx_id": "Apache-2.0",
+    "path": "LICENSE",
+    "revision": "6a41598191ebf3bd3e77bd70791a27d0ef946cc5",
+    "html_url": "https://github.com/bentoml/bentoml/blob/6a41598191ebf3bd3e77bd70791a27d0ef946cc5/LICENSE",
+    "license_text_sha256": "ec03feec4b53dc334141f77bd630ecbf3308bbe4899e3c33981982613869a87f",
+    "notes": [],
+    "reviewed_revisions": [
+      {
+        "instance_id": "bentoml-bentoml-pr5518",
+        "revision": "6a41598191ebf3bd3e77bd70791a27d0ef946cc5",
+        "html_url": "https://github.com/bentoml/bentoml/blob/6a41598191ebf3bd3e77bd70791a27d0ef946cc5/LICENSE",
+        "license_text_sha256": "ec03feec4b53dc334141f77bd630ecbf3308bbe4899e3c33981982613869a87f"
+      }
+    ]
+  },
+  "celery/celery": {
+    "status": "found",
+    "spdx_id": "BSD-3-Clause",
+    "path": "LICENSE",
+    "revision": "f55bb5f4cbbb59271a1b5ff2c58482a4cbb6d57c",
+    "html_url": "https://github.com/celery/celery/blob/f55bb5f4cbbb59271a1b5ff2c58482a4cbb6d57c/LICENSE",
+    "license_text_sha256": "c358cdf77f28bbab50d4a754e123118339c15230349e82bf66489cece3ac093a",
+    "notes": [
+      "GitHub reports NOASSERTION; the pinned LICENSE explicitly identifies and contains the BSD 3-Clause terms."
+    ],
+    "reviewed_revisions": [
+      {
+        "instance_id": "celery-celery-pr10174",
+        "revision": "066092edc2f9e34716025a9fb67462477d2309fb",
+        "html_url": "https://github.com/celery/celery/blob/066092edc2f9e34716025a9fb67462477d2309fb/LICENSE",
+        "license_text_sha256": "c358cdf77f28bbab50d4a754e123118339c15230349e82bf66489cece3ac093a"
+      },
+      {
+        "instance_id": "celery-celery-pr10206",
+        "revision": "19775b237f3ae2208b94f9005800a67c628017a8",
+        "html_url": "https://github.com/celery/celery/blob/19775b237f3ae2208b94f9005800a67c628017a8/LICENSE",
+        "license_text_sha256": "c358cdf77f28bbab50d4a754e123118339c15230349e82bf66489cece3ac093a"
+      },
+      {
+        "instance_id": "celery-celery-pr9879",
+        "revision": "f55bb5f4cbbb59271a1b5ff2c58482a4cbb6d57c",
+        "html_url": "https://github.com/celery/celery/blob/f55bb5f4cbbb59271a1b5ff2c58482a4cbb6d57c/LICENSE",
+        "license_text_sha256": "c358cdf77f28bbab50d4a754e123118339c15230349e82bf66489cece3ac093a"
+      }
+    ]
+  },
+  "tiangolo/fastapi": {
+    "status": "found",
+    "spdx_id": "MIT",
+    "path": "LICENSE",
+    "revision": "749cefdeb1428ba5c3911b03c4a72993f7eb3747",
+    "html_url": "https://github.com/tiangolo/fastapi/blob/749cefdeb1428ba5c3911b03c4a72993f7eb3747/LICENSE",
+    "license_text_sha256": "4ec89ffc81485b97fec584b2d4a961032eeffe834453894fd9c1274906cc744e",
+    "notes": [],
+    "reviewed_revisions": [
+      {
+        "instance_id": "tiangolo-fastapi-pr14681",
+        "revision": "749cefdeb1428ba5c3911b03c4a72993f7eb3747",
+        "html_url": "https://github.com/tiangolo/fastapi/blob/749cefdeb1428ba5c3911b03c4a72993f7eb3747/LICENSE",
+        "license_text_sha256": "4ec89ffc81485b97fec584b2d4a961032eeffe834453894fd9c1274906cc744e"
+      }
+    ]
+  }
+}

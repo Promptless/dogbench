@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dogbench.ai/schemas/item-v1.schema.json",
+  "title": "DogBench item",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["instance_id", "source_url", "context", "docs", "code"],
+  "properties": {
+    "instance_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "source_url": {"type": "string", "minLength": 1},
+    "context": {"type": "string", "minLength": 1},
+    "docs": {"$ref": "#/$defs/docs"},
+    "code": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/code"}
+      ]
+    }
+  },
+  "$defs": {
+    "sha": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{40}$"
+    },
+    "paths": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*(?:^|/)\\.git(?:/|$))[^\\u0000]+$"
+      },
+      "uniqueItems": true
+    },
+    "docs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repo_url", "base_sha", "head_sha", "paths"],
+      "allOf": [
+        {
+          "if": {"properties": {"paths": {"minItems": 1}}},
+          "then": {"properties": {"head_sha": {"$ref": "#/$defs/sha"}}}
+        }
+      ],
+      "properties": {
+        "repo_url": {"type": "string", "minLength": 1},
+        "base_sha": {"$ref": "#/$defs/sha"},
+        "head_sha": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/sha"}
+          ]
+        },
+        "paths": {"$ref": "#/$defs/paths"}
+      }
+    },
+    "code": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_url", "repo_url", "base_sha", "head_sha", "paths"],
+      "properties": {
+        "source_url": {"type": "string", "minLength": 1},
+        "repo_url": {"type": "string", "minLength": 1},
+        "base_sha": {"$ref": "#/$defs/sha"},
+        "head_sha": {"$ref": "#/$defs/sha"},
+        "paths": {
+          "allOf": [
+            {"$ref": "#/$defs/paths"},
+            {"minItems": 1}
+          ]
+        }
+      }
+    }
+  }
+}
