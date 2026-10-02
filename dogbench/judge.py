@@ -197,10 +197,9 @@ def run_codex(prompt: Path, schema: Path, output: Path, log: Path, model: str) -
 
 
 def validate_score(payload: dict[str, Any], blocks: dict[str, dict[str, Any]], patch: str) -> None:
-    # Scorers quote authored text without unified-diff `+` markers. Require a
-    # contiguous match against either the raw patch or its exact added-line
-    # projection; fuzzy or semantic-only matches remain invalid.
-    raw_view = " ".join(patch.split())
+    # Scorers quote authored text without unified-diff markers. Match only the
+    # added lines or the post-change projection, excluding deleted content;
+    # fuzzy or semantic-only matches remain invalid.
     added_view = " ".join("\n".join(
         line[1:] for line in patch.splitlines()
         if line.startswith("+") and not line.startswith("+++")
@@ -263,8 +262,7 @@ def validate_score(payload: dict[str, Any], blocks: dict[str, dict[str, Any]], p
                       "contradicting_patch_quote"):
             quote = row.get(field)
             normalized = " ".join(quote.split()) if quote else ""
-            if (quote and normalized not in raw_view and normalized not in added_view
-                    and normalized not in rendered_added_view
+            if (quote and normalized not in added_view and normalized not in rendered_added_view
                     and normalized not in authored_view):
                 raise ValueError(f"{cid}: {field} is not an exact patch quote")
 
