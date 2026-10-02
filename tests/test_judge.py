@@ -77,6 +77,27 @@ class JudgeTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 validate_score(payload, blocks, PATCH)
 
+    def test_evidence_must_come_from_added_or_post_change_lines(self):
+        patch = """diff --git a/docs.md b/docs.md
+--- a/docs.md
++++ b/docs.md
+@@ -1,2 +1,2 @@
+-Removed evidence sentence.
++Added evidence sentence.
+ context evidence sentence.
+"""
+        blocks = criterion_blocks(RUBRIC)
+
+        removed = {"criteria": [judgment(
+            supporting_patch_quote="Removed evidence sentence.")], "summary": ""}
+        with self.assertRaises(ValueError):
+            validate_score(removed, blocks, patch)
+
+        for quote in ("context evidence sentence.", "Added evidence sentence."):
+            with self.subTest(quote=quote):
+                payload = {"criteria": [judgment(supporting_patch_quote=quote)], "summary": ""}
+                validate_score(payload, blocks, patch)
+
     def test_saved_hash_bound_judgment_scores_without_model_call(self):
         payload = {"criteria": [judgment()], "summary": "Pass", "original_field": {"kept": True}}
         predictions = [

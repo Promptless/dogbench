@@ -21,13 +21,12 @@ approved dataset export. A failed preparation is not evidence that the release
 file's hash is wrong. The extraction retains the original check; it does not
 silently rewrite approved context to get past it.
 
-## Evidence validation does not distinguish added and deleted lines
+## Scoring evidence is checked against the post-change text
 
-The original judge validator checks whether quoted evidence occurs in the
-patch text. A quote from a deleted line can satisfy that check. The original
-Terra prompt, schema, evidence validator, and numeric scorer are preserved,
-including this limitation. Numeric parity does not establish that every
-criterion judgment is correct.
+Evidence quotes must occur in added lines or in the post-change projection of
+the diff. Unchanged context remains eligible evidence, while text found only
+in deleted lines cannot support a judgment. This exact-match validation does
+not establish that every criterion judgment is correct.
 
 ## Historical artifacts have different coverage and versions
 
